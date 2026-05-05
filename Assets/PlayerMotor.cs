@@ -13,7 +13,10 @@ public class PlayerMotor : MonoBehaviour
     public float stoppingForce = 10;
     public float Coin = 1;
     public CoinManager cm;
+    private int _jumpcount = 0;
+    private int _maxJumpCount = 2;
     
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
@@ -62,21 +65,35 @@ public class PlayerMotor : MonoBehaviour
 
     private void OnJump()
     {
+      
+       
+      
         if (canJump)
+
         {
 
             rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-            canJump = false;
+           
+            _jumpcount++;
+            if (_jumpcount >= _maxJumpCount) 
+            {
+                canJump = false;
+            }
+
+           
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
         canJump = true;
+        _jumpcount = 0;
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log(0);
         if (other.gameObject.CompareTag("Coin"))
         {
+            Debug.Log(1);
             cm.coinCount++;
             Destroy(other.gameObject);
         }
