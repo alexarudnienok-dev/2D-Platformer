@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -6,6 +8,7 @@ public class PlayerMotor : MonoBehaviour
 {
     Vector2 direction;
     private bool canJump = true;
+    public float DashTime = 0.5f;
     private Rigidbody2D rigidbody2D;
     public float speed = 5;
     public float jumpForce = 5;
@@ -15,7 +18,8 @@ public class PlayerMotor : MonoBehaviour
     public CoinManager cm;
     private int _jumpcount = 0;
     private int _maxJumpCount = 2;
-    
+    public float DashForce = 10;
+    private bool _IsDashing = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -42,6 +46,10 @@ public class PlayerMotor : MonoBehaviour
 
     private void HandleMaxSpeed()
     {
+        if (_IsDashing)
+        {
+            return;
+        }
         if (rigidbody2D.linearVelocityX >= maxSpeed)
         {
             rigidbody2D.linearVelocityX = maxSpeed;
@@ -65,24 +73,39 @@ public class PlayerMotor : MonoBehaviour
 
     private void OnJump()
     {
-      
-       
-      
+
+
+
         if (canJump)
 
         {
 
             rigidbody2D.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-           
+
             _jumpcount++;
-            if (_jumpcount >= _maxJumpCount) 
+            if (_jumpcount >= _maxJumpCount)
             {
                 canJump = false;
             }
 
-           
+
         }
     }
+
+    private void OnDash()
+    {
+        _IsDashing = true;
+        rigidbody2D.AddForce(new Vector2(direction.x * DashForce, 0), ForceMode2D.Impulse);
+        StartCoroutine(ResetDash(DashTime));
+
+    }
+
+    IEnumerator ResetDash(float timeToRest)
+    {
+        yield return new WaitForSeconds(timeToRest);
+        _IsDashing = false;
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         canJump = true;
@@ -97,13 +120,10 @@ public class PlayerMotor : MonoBehaviour
             cm.coinCount++;
             Destroy(other.gameObject);
         }
-    {
-
-
-         
     }
-    }
-
-
+  
 }
+    
+
+
 
